@@ -1,92 +1,60 @@
+import { useState } from "react";
 import { DogCard } from "../Shared/DogCard";
-import { dogPictures } from "../dog-pictures";
+import { Requests } from "../api";
+import { Dog, DogStateProps } from "../types";
 
 // Right now these dogs are constant, but in reality we should be getting these from our server
-export const FunctionalDogs = () => {
+export const FunctionalDogs = ({ activeTab, dogs, setDogs }: DogStateProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpdateRequest = async (dogId: number, favState: Partial<Dog>) => {
+    setIsLoading(true);
+    await Requests.updateDog(dogId, favState);
+    setDogs((prevDogs) =>
+      prevDogs.map((existingDog) =>
+        existingDog.id === dogId ? { ...existingDog, ...favState } : existingDog
+      )
+    );
+    setIsLoading(false);
+  };
+
+  const handleDeleteRequest = async (dogId: number) => {
+    setIsLoading(true);
+    await Requests.deleteDog(dogId);
+    setDogs((prevDog) =>
+      prevDog.filter((existingDog) => existingDog.id !== dogId)
+    );
+  };
+
+  const visibleDogs =
+    activeTab === "selectedFav"
+      ? dogs.filter((dog) => dog.isFavorite)
+      : activeTab === "selectedUnFav"
+      ? dogs.filter((dog) => !dog.isFavorite)
+      : dogs;
+
   return (
     //  the "<> </>"" are called react fragments, it's like adding all the html inside
     // without adding an actual html element
     <>
-      <DogCard
-        dog={{
-          id: 1,
-          image: dogPictures.BlueHeeler,
-          description: "Example Description",
-          isFavorite: false,
-          name: "Cute Blue Heeler",
-        }}
-        key={1}
-        onTrashIconClick={() => {
-          alert("clicked trash");
-        }}
-        onHeartClick={() => {
-          alert("clicked heart");
-        }}
-        onEmptyHeartClick={() => {
-          alert("clicked empty heart");
-        }}
-        isLoading={false}
-      />
-      <DogCard
-        dog={{
-          id: 2,
-          image: dogPictures.Boxer,
-          description: "Example Description",
-          isFavorite: false,
-          name: "Cute Boxer",
-        }}
-        key={2}
-        onTrashIconClick={() => {
-          alert("clicked trash");
-        }}
-        onHeartClick={() => {
-          alert("clicked heart");
-        }}
-        onEmptyHeartClick={() => {
-          alert("clicked empty heart");
-        }}
-        isLoading={false}
-      />
-      <DogCard
-        dog={{
-          id: 3,
-          image: dogPictures.Chihuahua,
-          description: "Example Description",
-          isFavorite: false,
-          name: "Cute Chihuahua",
-        }}
-        key={3}
-        onTrashIconClick={() => {
-          alert("clicked trash");
-        }}
-        onHeartClick={() => {
-          alert("clicked heart");
-        }}
-        onEmptyHeartClick={() => {
-          alert("clicked empty heart");
-        }}
-        isLoading={false}
-      />
-      <DogCard
-        dog={{
-          id: 4,
-          image: dogPictures.Corgi,
-          description: "Example Description",
-          isFavorite: false,
-          name: "Cute Corgi",
-        }}
-        key={4}
-        onTrashIconClick={() => {
-          alert("clicked trash");
-        }}
-        onHeartClick={() => {
-          alert("clicked heart");
-        }}
-        onEmptyHeartClick={() => {
-          alert("clicked empty heart");
-        }}
-        isLoading={false}
-      />
+      {visibleDogs.map((dog) => (
+        <DogCard
+          key={dog.id}
+          dog={dog}
+          onTrashIconClick={async () => {
+            handleDeleteRequest(dog.id);
+          }}
+          onHeartClick={async () => {
+            handleUpdateRequest(dog.id, { isFavorite: false });
+          }}
+          onEmptyHeartClick={async () => {
+            setIsLoading(!isLoading);
+            await Requests.updateDog(dog.id, { isFavorite: true });
+            handleUpdateRequest(dog.id, { isFavorite: true });
+          }}
+          isLoading={isLoading}
+        />
+      ))}
     </>
   );
 };
