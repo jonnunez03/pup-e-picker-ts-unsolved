@@ -10,11 +10,16 @@ export const Requests = {
       headers: {
         "Content-Type": "application/json",
       },
-    }).then((data) => data.json());
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to fetch dogs!`);
+      }
+      return res.json();
+    });
   },
   // should create a dog in the database from a partial dog object
   // and return a promise with the result
-  postDog: (newDog: Dog) => {
+  postDog: (newDog: Partial<Dog>) => {
     return fetch(`${baseUrl}/dogs`, {
       method: "POST",
       headers: {
@@ -46,7 +51,12 @@ export const Requests = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(updates),
-    }).then((data) => data.json());
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to update dog!`);
+      }
+      return res.json();
+    });
   },
   // Just a dummy function for use in the playground
   dummyFunction: () => {

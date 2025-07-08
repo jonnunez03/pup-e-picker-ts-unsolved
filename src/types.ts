@@ -8,12 +8,6 @@ export type Dog = {
   id: number;
 };
 
-export type DogStateProps = {
-  activeTab: string;
-  dogs: Dog[];
-  setDogs: React.Dispatch<React.SetStateAction<Dog[]>>;
-};
-
 export type ClassdogsState = {
   isLoading: boolean;
 };
@@ -23,3 +17,5 @@ export type ClassCreateDogFormState = {
   image: string;
   description: string;
 };
+
+export type TActiveTab = "all" | "fav" | "unFav" | "createDog";

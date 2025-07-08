@@ -32,7 +32,7 @@
       "name": "Bernita",
       "image": "/assets/corgi.png",
       "description": "properly infinite agree hmph note outlying decimal",
-      "isFavorite": false,
+      "isFavorite": true,
       "id": 4
     },
     {
@@ -53,7 +53,7 @@
       "name": "Kaylin",
       "image": "/assets/corgi.png",
       "description": "svelte kick-off golden arch save because sternly warmly",
-      "isFavorite": true,
+      "isFavorite": false,
       "id": 7
     },
     {
@@ -137,7 +137,7 @@
       "name": "Hassie",
       "image": "/assets/cowardly.png",
       "description": "because jicama duh whether oily tensely between",
-      "isFavorite": false,
+      "isFavorite": true,
       "id": 19
     }
   ]

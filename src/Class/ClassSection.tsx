@@ -1,53 +1,26 @@
 // you can use `ReactNode` to add a type to the children prop
-import { Component } from "react";
+import { Component, ReactNode } from "react";
+import { TActiveTab } from "../types";
 import { Link } from "react-router-dom";
-import { DogStateProps } from "../types";
-import { ClassCreateDogForm } from "./ClassCreateDogForm";
-import { ClassDogs } from "./ClassDogs";
-import { Requests } from "../api";
 
-export class ClassSection extends Component<{}, DogStateProps> {
-  constructor(props: DogStateProps) {
-    super(props);
-    this.state = {
-      activeTab: "",
-      dogs: [],
-      setDogs: this.fetchDogs,
-    };
-  }
-
-  componentDidMount(): void {
-    this.fetchDogs();
-  }
-
-  fetchDogs = async () => {
-    const currentDogs = await Requests.getAllDogs();
-    this.setState({ dogs: currentDogs });
-  };
-
-  setActiveTab = (fav: boolean, isCreateDogBtn = false) => {
-    const { activeTab } = this.state;
-    if (fav) {
-      this.setState({
-        activeTab: activeTab !== "selectedFav" ? "selectedFav" : "",
-      });
-    } else if (!fav) {
-      this.setState({
-        activeTab: activeTab !== "selectedUnFav" ? "selectedUnFav" : "",
-      });
-    }
-
-    if (isCreateDogBtn) {
-      this.setState({
-        activeTab: activeTab !== "selectedCreateDog" ? "selectedCreateDog" : "",
-      });
-    }
+export class ClassSection extends Component<
+  {
+    children: ReactNode;
+    activeTab: TActiveTab;
+    setActiveTab: (value: TActiveTab) => void;
+    counters: { favDogs: number; unFavDogs: number };
+  },
+  {}
+> {
+  onClickHandler = (value: TActiveTab) => {
+    const { activeTab, setActiveTab } = this.props;
+    const isSameActiveTab = value === activeTab;
+    const newActiveTab = isSameActiveTab ? "all" : value;
+    setActiveTab(newActiveTab);
   };
 
   render() {
-    const { activeTab, dogs } = this.state;
-    const favCount = dogs.filter((dog) => dog.isFavorite).length;
-    const unFavCount = dogs.filter((dog) => !dog.isFavorite).length;
+    const { activeTab, counters } = this.props;
     return (
       <section id="main-section">
         <div className="container-header">
@@ -60,44 +33,30 @@ export class ClassSection extends Component<{}, DogStateProps> {
           <div className="selectors">
             {/* This should display the favorited count */}
             <div
-              className={`selector ${
-                activeTab === "selectedFav" ? "active" : ""
-              }`}
-              onClick={() => this.setActiveTab(true)}
+              className={`selector ${activeTab === "fav" ? "active" : ""}`}
+              onClick={() => this.onClickHandler("fav")}
             >
-              favorited ( {favCount} )
+              favorited ( {counters.favDogs} )
             </div>
 
             {/* This should display the unfavorited count */}
             <div
-              className={`selector ${
-                activeTab === "selectedUnFav" ? "active" : ""
-              }`}
-              onClick={() => this.setActiveTab(false)}
+              className={`selector ${activeTab === "unFav" ? "active" : ""}`}
+              onClick={() => this.onClickHandler("unFav")}
             >
-              unfavorited ( {unFavCount} )
+              unfavorited ( {counters.unFavDogs} )
             </div>
             <div
               className={`selector ${
-                activeTab === "selectedCreateDog" ? "active" : ""
+                activeTab === "createDog" ? "active" : ""
               }`}
-              onClick={() => this.setActiveTab(true, true)}
+              onClick={() => this.onClickHandler("createDog")}
             >
               create dog
             </div>
           </div>
         </div>
-        <div className="content-container">
-          {activeTab === "selectedCreateDog" ? (
-            <ClassCreateDogForm dogs={dogs} setDogs={this.fetchDogs} />
-          ) : (
-            <ClassDogs
-              activeTab={activeTab}
-              dogs={dogs}
-              setDogs={this.fetchDogs}
-            />
-          )}
-        </div>
+        <div className="content-container">{this.props.children}</div>
       </section>
     );
   }

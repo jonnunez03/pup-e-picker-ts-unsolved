@@ -1,38 +1,23 @@
 // you can use this type for react children if you so choose
-import { useEffect, useState } from "react";
+import { Dispatch, ReactNode, SetStateAction } from "react";
 import { Link } from "react-router-dom";
-import { FunctionalDogs } from "./FunctionalDogs";
-import { FunctionalCreateDogForm } from "./FunctionalCreateDogForm";
-import { Dog } from "../types";
-import { Requests } from "../api";
+import { TActiveTab } from "../types";
 
-export const FunctionalSection = () => {
-  const [activeTab, setActiveTab] = useState("");
-  const [dogs, setDogs] = useState<Dog[]>([]);
-
-  useEffect(() => {
-    const fetchDogs = async () => {
-      const currentDogs = await Requests.getAllDogs();
-      setDogs(currentDogs);
-    };
-    fetchDogs();
-  }, []);
-
-  const favCount = dogs.filter((dog) => dog.isFavorite).length;
-  const unFavCount = dogs.filter((dog) => !dog.isFavorite).length;
-
-  const onClickHandler = (fav: boolean, isCreateDogBtn = false) => {
-    if (fav) {
-      setActiveTab(activeTab !== "selectedFav" ? "selectedFav" : "");
-    } else if (!fav) {
-      setActiveTab(activeTab !== "selectedUnFav" ? "selectedUnFav" : "");
-    }
-
-    if (isCreateDogBtn) {
-      setActiveTab(
-        activeTab !== "selectedCreateDog" ? "selectedCreateDog" : ""
-      );
-    }
+export const FunctionalSection = ({
+  children,
+  activeTab,
+  setActiveTab,
+  counters,
+}: {
+  children: ReactNode;
+  activeTab: TActiveTab;
+  setActiveTab: Dispatch<SetStateAction<TActiveTab>>;
+  counters: { favDogs: number; unFavDogs: number };
+}) => {
+  const onClickHandler = (value: TActiveTab) => {
+    const isSameActiveTab = value === activeTab;
+    const newActiveTab = isSameActiveTab ? "all" : value;
+    setActiveTab(newActiveTab);
   };
 
   return (
@@ -45,40 +30,28 @@ export const FunctionalSection = () => {
         <div className="selectors">
           {/* This should display the favorited count */}
           <div
-            className={`selector ${
-              activeTab === "selectedFav" ? "active" : ""
-            } `}
-            onClick={() => onClickHandler(true)}
+            className={`selector ${activeTab === "fav" ? "active" : ""} `}
+            onClick={() => onClickHandler("fav")}
           >
-            favorited ( {favCount} )
+            favorited ( {counters.favDogs} )
           </div>
 
           {/* This should display the unfavorited count */}
           <div
-            className={`selector ${
-              activeTab === "selectedUnFav" ? "active" : ""
-            }`}
-            onClick={() => onClickHandler(false)}
+            className={`selector ${activeTab === "unFav" ? "active" : ""}`}
+            onClick={() => onClickHandler("unFav")}
           >
-            unfavorited ( {unFavCount} )
+            unfavorited ( {counters.unFavDogs} )
           </div>
           <div
-            className={`selector ${
-              activeTab === "selectedCreateDog" ? "active" : ""
-            }`}
-            onClick={() => onClickHandler(true, true)}
+            className={`selector ${activeTab === "createDog" ? "active" : ""}`}
+            onClick={() => onClickHandler("createDog")}
           >
             create dog
           </div>
         </div>
       </div>
-      <div className="content-container">
-        {activeTab === "selectedCreateDog" ? (
-          <FunctionalCreateDogForm dogs={dogs} setDogs={setDogs} />
-        ) : (
-          <FunctionalDogs activeTab={activeTab} dogs={dogs} setDogs={setDogs} />
-        )}
-      </div>
+      <div className="content-container">{children}</div>
     </section>
   );
 };
